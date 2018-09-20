@@ -128,4 +128,4 @@ venv.bak/
 Python.gitignore
 log/
 .idea/
-
+db.sqlite3
