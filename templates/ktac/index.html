@@ -2,9 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            alert("ok")
+        });
+    </script>
+    <title>开通进程管理</title>
 </head>
 <body>
-
+    <div>
+    <label>主机</label><select id="host">
+    <option value ="all">全部</option>
+    </select>
+    进程<select id="process">
+    <option value ="all">全部</option>
+    </select>
+    网元<select id="ne">
+    <option value ="all">全部</option>
+    </select>
+    命令<select id="cmd">
+        <option value ="query" selected="selected">查询</option>
+        <option value ="start">启动</option>
+        <option value ="down">停止</option>
+        <option value ="restart">重启</option>
+    </select>
+<br />
+<input type="submit" value="提交">
+<br />
+        </div>
+    <div>
+<textarea name="result" readonly="readonly">开通进程查询……</textarea>
+        </div>
 </body>
 </html>
