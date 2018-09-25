@@ -225,10 +225,10 @@ class AcCmd(object):
 
 
 class AcConsole(threading.Thread):
-    def __init__(self, reCmd, reHost, aHostProcess, aProcess, logPre):
+    def __init__(self, reCmd, procType, reHost, aHostProcess, aProcess, logPre):
         threading.Thread.__init__(self)
         self.reCmd = reCmd
-        # self.objType = objType
+        self.procType = procType
         self.host = reHost
         # self.reCmd.cmd = 'appControl -c %s:%s' % (reHost.hostIp, str(reHost.port))
         self.aProcess = aProcess
@@ -270,8 +270,14 @@ class AcConsole(threading.Thread):
             # time.sleep(1)
             # print('send cmd: %s' % cmd)
             # aCmdProcess = self.makeCmdProcess(cmd)
-            aCmdProcess = [cmd]
-            for cmdProc in aCmdProcess:
+            # aCmdProcess = [cmd]
+            baseProcess = []
+            if self.procType == 'all':
+                baseProcess.append('all')
+            else:
+                baseProcess = self.aProcess
+            for proc in baseProcess:
+                cmdProc = self.makeCmdProcess(cmd, proc)
                 print('(%s)%s' % (self.host.hostName, cmdProc))
                 appc.sendline(cmdProc)
                 i = appc.expect([self.reCmd.prompt, r'RESULT:FALSE:', pexpect.TIMEOUT, pexpect.EOF])
@@ -285,7 +291,7 @@ class AcConsole(threading.Thread):
                     i = appc.expect([self.reCmd.prompt, r'RESULT:FALSE:', pexpect.TIMEOUT, pexpect.EOF])
             # print('check process after %s:' % cmd)
             time.sleep(60)
-            dDoneProcess = self.checkResult(cmd, appc)
+            dDoneProcess = self.checkResult(cmd, appc, proc)
 
             self.markProcStatus(dDoneProcess)
             # time.sleep(1)
@@ -303,31 +309,31 @@ class AcConsole(threading.Thread):
             acs.sendline(cmdProc)
             i = acs.expect([self.reCmd.prompt, pexpect.TIMEOUT, pexpect.EOF])
 
-    def makeCmdProcess(self, cmd):
+    def makeCmdProcess(self, cmd, proc):
         aCmdProc = []
         if cmd == 'query':
             return [cmd]
-        if self.oHost == 'h':
+        if proc == 'all':
             cmdProc = '%sall' % cmd
             aCmdProc.append(cmdProc)
         else:
-            for prc in self.aProcess:
-                cmdProc = '%s %s' % (cmd, prc[2])
-                aCmdProc.append(cmdProc)
+            cmdProc = '%s %s' % (cmd, proc[2])
+            aCmdProc.append(cmdProc)
         return aCmdProc
 
-    def checkResult(self, cmd, acs):
-        if cmd[:5] == 'start':
-            return self.checkStart(acs)
-        elif cmd[:5] == 'shutd':
-            return self.checkDown(acs)
-
-    def checkStart(self, acs):
+    def checkResult(self, cmd, acs, proc):
         aBaseProc = []
-        if self.objType == 'h':
+        if self.procType == 'all':
             aBaseProc = self.aHostProcess
         else:
-            aBaseProc = self.aProcess
+            aBaseProc = [proc]
+
+        if cmd[:5] == 'start':
+            return self.checkStart(acs, aBaseProc)
+        elif cmd[:5] == 'shutd':
+            return self.checkDown(acs, aBaseProc)
+
+    def checkStart(self, acs, aBaseProc):
         dCheckProc = {}
         for i in range(self.queryNum):
             dCheckProc = self.queryProcess(acs)
@@ -345,17 +351,17 @@ class AcConsole(threading.Thread):
                 break
         return dCheckProc
 
-    def checkDown(self, acs):
+    def checkDown(self, acs, aBaseProc):
         dCheckProc = {}
         for i in range(self.queryNum):
             dCheckProc = self.queryProcess(acs)
-            if self.objType == 'h':
+            if self.procType == 'all':
                 if len(dCheckProc) == 0:
                     return dCheckProc
                 else:
                     time.sleep(60)
                     continue
-            for proc in self.aProcess:
+            for proc in self.aBaseProc:
                 prcName = proc[1]
                 # prcName = prcAcName.split('|')[2]
                 prcIsRun = 0
@@ -428,8 +434,9 @@ class AcBuilder(object):
     sqlProcess = "select m.machine_name,m.process_name,m.process_name,r.net_code,m.sort from sys_machine_process m, ps_proxy_route r where m.state=1 and m.process_name=r.process_name(+) order by m.machine_name,m.sort"
     def __init__(self, main):
         self.main = main
-        self.group = main.group
-        self.arvHosts = main.hosts
+        self.procType = main.procType
+        # self.group = main.group
+        # self.arvHosts = main.hosts
         self.conn = self.main.conn
         self.dHosts = {}
         self.dProcess = {}
@@ -456,25 +463,25 @@ class AcBuilder(object):
         self.acCmd = cmd
         return cmd
 
-    def makeAcCmd(self, host):
-        cmd = copy.deepcopy(self.acCmd)
-        aCmds = cmd.aCmds
-        cmd.aCmds = []
-        for cmd in aCmds:
-            # aCmdProc = []
-            if cmd == 'query':
-                cmd.addCmd(cmd)
-                continue
-            if self.main.net is None and self.main.process is None:
-                cmdProc = '%sall' % cmd
-                cmd.addCmd(cmdProc)
-                continue
-            aProcess = self.dProcess[host.hostName]
-            for prc in aProcess:
-                cmdProc = '%s %s' % (cmd, prc[2])
-                cmd.append(cmdProc)
-                continue
-        return cmd
+    # def makeAcCmd(self, host):
+    #     cmd = copy.deepcopy(self.acCmd)
+    #     aCmds = cmd.aCmds
+    #     cmd.aCmds = []
+    #     for cmd in aCmds:
+    #         # aCmdProc = []
+    #         if cmd == 'query':
+    #             cmd.addCmd(cmd)
+    #             continue
+    #         if self.main.net is None and self.main.process is None:
+    #             cmdProc = '%sall' % cmd
+    #             cmd.addCmd(cmdProc)
+    #             continue
+    #         aProcess = self.dProcess[host.hostName]
+    #         for prc in aProcess:
+    #             cmdProc = '%s %s' % (cmd, prc[2])
+    #             cmd.append(cmdProc)
+    #             continue
+    #     return cmd
 
     def buildAcConsole(self):
         logging.info('create remote appc ')
@@ -484,10 +491,10 @@ class AcBuilder(object):
             aHostProcess = self.dAllProcess[hostName]
             # hostName = self.dProcess[process][0]
             host = self.dHosts[hostName]
-            cmd = self.makeAcCmd(host)
+            cmd = self.acCmd
             # cmdProc = self.makeCmdProcess(cmd, aProcess)
             logging.info(cmd)
-            acCons = AcConsole(cmd, host, aHostProcess, aProcess, self.main.logPre)
+            acCons = AcConsole(self.acCmd, self.procType, host, aHostProcess, aProcess, self.main.logPre)
             self.aAcCons.append(acCons)
         return self.aAcCons
 
@@ -528,7 +535,7 @@ class AcBuilder(object):
         aHosts = None
         if main.net:
             aNets = main.obj.split(',')
-        elif main.process:
+        if main.process:
             aProcess = main.process.split(',')
             aProcName = self.parseProcess(aProcess)
         if main.host:
@@ -760,10 +767,13 @@ class Main(object):
         self.baseName = os.path.basename(self.Name)
         self.argc = len(sys.argv)
         self.conn = None
-        self.cmd = None
-        self.objType = None
         self.host = None
-        self.obj = None
+        self.process = None
+        self.net = None
+        self.procType = None
+        self.cmd = None
+        # self.objType = None
+        # self.obj = None
 
     def parseWorkEnv(self):
         dirBin, appName = os.path.split(self.Name)
@@ -809,7 +819,7 @@ class Main(object):
         argvs = sys.argv[1:]
 
         self.group = []
-        self.hosts = []
+        # self.hosts = []
         try:
             opts, arvs = getopt.getopt(argvs, "c:h:p:n:")
         except getopt.GetoptError, e:
@@ -818,8 +828,8 @@ class Main(object):
         self.cmd = 'q'
         # self.objType = 'h'
         self.host = 'a'
-        self.process = None
-        self.net = None
+        # self.process = None
+        # self.net = None
         for opt, arg in opts:
             if opt == '-c':
                 self.cmd = arg
@@ -829,6 +839,14 @@ class Main(object):
                 self.process = arg
             elif opt == '-n':
                 self.net = arg
+        if self.process is None and self.net is None:
+            self.procType = 'all'
+        else:
+            self.procType = ''
+            if self.process:
+                self.procType = '%sp' % self.procType
+            if self.net:
+                self.procType = '%sn' % self.procType
         # if len(arvs) > 0:
         #     self.obj = arvs[0]
 
