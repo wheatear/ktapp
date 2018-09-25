@@ -5,7 +5,17 @@
     <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript">
         $(function(){
-            alert("ok")
+            $.get('ktac', function(dic){
+                result = dic.result
+                $('#result').text(result)
+            });
+
+            $('#btn1').click(function(){
+                $.get('ktexe', function(dic){
+                    res = $('#result')
+                    res.text(dic.result)
+                })
+            });
         });
     </script>
     <title>开通进程管理</title>
@@ -28,11 +38,11 @@
         <option value ="restart">重启</option>
     </select>
 <br />
-<input type="submit" value="提交">
+        <button type="button" id="btn1">提交</button>
 <br />
         </div>
     <div>
-<textarea name="result" readonly="readonly">开通进程查询……</textarea>
+<textarea id="result" readonly="readonly">开通进程查询……</textarea>
         </div>
 </body>
 </html>
