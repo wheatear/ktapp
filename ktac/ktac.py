@@ -285,13 +285,14 @@ class AcConsole(threading.Thread):
                 while i == 1:
                     iResend += 1
                     if iResend > 5:
+                        logging.info('error: %s', cmdProc)
                         break
                     time.sleep(60)
                     appc.sendline(cmdProc)
                     i = appc.expect([self.reCmd.prompt, r'RESULT:FALSE:', pexpect.TIMEOUT, pexpect.EOF])
             # print('check process after %s:' % cmd)
             time.sleep(60)
-            dDoneProcess = self.checkResult(cmd, appc, proc)
+            dDoneProcess = self.checkResult(cmd, appc, baseProcess)
 
             self.markProcStatus(dDoneProcess)
             # time.sleep(1)
@@ -310,23 +311,25 @@ class AcConsole(threading.Thread):
             i = acs.expect([self.reCmd.prompt, pexpect.TIMEOUT, pexpect.EOF])
 
     def makeCmdProcess(self, cmd, proc):
-        aCmdProc = []
+        # aCmdProc = []
+        cmdProc = ''
         if cmd == 'query':
             return [cmd]
         if proc == 'all':
             cmdProc = '%sall' % cmd
-            aCmdProc.append(cmdProc)
+            # aCmdProc.append(cmdProc)
         else:
             cmdProc = '%s %s' % (cmd, proc[2])
-            aCmdProc.append(cmdProc)
-        return aCmdProc
+            # aCmdProc.append(cmdProc)
+        return cmdProc
+        # return aCmdProc
 
-    def checkResult(self, cmd, acs, proc):
+    def checkResult(self, cmd, acs, aProc):
         aBaseProc = []
         if self.procType == 'all':
             aBaseProc = self.aHostProcess
         else:
-            aBaseProc = [proc]
+            aBaseProc = aProc
 
         if cmd[:5] == 'start':
             return self.checkStart(acs, aBaseProc)
