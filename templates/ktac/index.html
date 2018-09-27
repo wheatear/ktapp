@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery.min.js"></script>
     <script type="text/javascript">
         $(function(){
-            $.get('ktac', function(dic){
+            $.get('ktqry', function(dic){
                 result = dic.result
                 $('#result').text(result)
             });
 
             $('#btn1').click(function(){
-                $.get('ktexe', function(dic){
+                $.get('ktqry', function(dic){
                     res = $('#result')
                     res.text(dic.result)
+                    res.resize()
                 })
             });
         });
@@ -42,7 +43,7 @@
 <br />
         </div>
     <div>
-<textarea id="result" readonly="readonly">开通进程查询……</textarea>
+<textarea id="result" readonly="readonly" rows="38" cols="150">开通进程查询……</textarea>
         </div>
 </body>
 </html>

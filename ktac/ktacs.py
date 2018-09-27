@@ -16,7 +16,7 @@ import socket
 # import hostdirs
 from multiprocessing.managers import BaseManager
 import pexpect
-import pexpect.pxssh
+# import pexpect.pxssh
 import base64
 import logging
 import re
@@ -364,7 +364,7 @@ class AcConsole(threading.Thread):
                 else:
                     time.sleep(60)
                     continue
-            for proc in self.aBaseProc:
+            for proc in aBaseProc:
                 prcName = proc[1]
                 # prcName = prcAcName.split('|')[2]
                 prcIsRun = 0
@@ -536,6 +536,7 @@ class AcBuilder(object):
         aProcess = None
         aProcName = None
         aHosts = None
+        main = self.main
         if main.net:
             aNets = main.obj.split(',')
         if main.process:
@@ -757,6 +758,7 @@ class Director(object):
         print(aProcessStatus)
         self.printOut(aProcessStatus)
         logging.info('all %d remotesh completed.', acNum)
+        return aProcessStatus
 
     def printOut(self, sMsg):
         fOut = open(self.builder.main.outFile, 'w')
@@ -799,7 +801,8 @@ class Main(object):
             else:
                 self.dirApp = dirApp
         self.dirLog = os.path.join(self.dirApp, 'log')
-        self.dirCfg = os.path.join(self.dirApp, 'config')
+        # self.dirCfg = os.path.join(self.dirApp, 'config')
+        self.dirCfg = self.dirBin
         self.dirTpl = os.path.join(self.dirApp, 'template')
         self.dirLib = os.path.join(self.dirApp, 'lib')
         self.dirOut = os.path.join(self.dirApp, 'output')
@@ -900,8 +903,8 @@ class Main(object):
         self.parseWorkEnv()
 
         self.cfg = Conf(self.cfgFile)
-        self.logLevel = self.cfg.loadLogLevel()
-        # self.logLevel = logging.DEBUG
+        # self.logLevel = self.cfg.loadLogLevel()
+        self.logLevel = logging.DEBUG
         logging.basicConfig(filename=self.logFile, level=self.logLevel, format='%(asctime)s %(levelname)s %(message)s',
                             datefmt='%Y%m%d%H%M%S')
         logging.info('%s starting...' % self.baseName)
@@ -911,7 +914,7 @@ class Main(object):
         builder = AcBuilder(self)
         # remoteShell.loger = loger
         director = Director(builder)
-        director.start()
+        return director.start()
 
         # remoteShell.join()
 
