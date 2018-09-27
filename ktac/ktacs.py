@@ -754,11 +754,12 @@ class Director(object):
             ac.join()
             logging.info('host %s cmd completed.', ac.host.hostName)
         logging.info('all cmd done, process status:')
-        aProcessStatus = self.builder.printProcess(self.builder.dAllProcess)
-        print(aProcessStatus)
-        self.printOut(aProcessStatus)
+        sProcessStatus = self.builder.printProcess(self.builder.dAllProcess)
+        print(sProcessStatus)
+        self.printOut(sProcessStatus)
         logging.info('all %d remotesh completed.', acNum)
-        return aProcessStatus
+        # return sProcessStatus
+        return self.builder.dAllProcess
 
     def printOut(self, sMsg):
         fOut = open(self.builder.main.outFile, 'w')

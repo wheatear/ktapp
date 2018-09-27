@@ -6,8 +6,19 @@
     <script type="text/javascript">
         $(function(){
             $.get('ktqry', function(dic){
-                result = dic.result
-                $('#result').text(result)
+                dProcess = dic.result;
+                host = $('#host');
+                process = $('#process');
+                net = $('#ne');
+                $.each(dProcess, function(hId,aProcess){
+                    {#alert(hId)#}
+                    host.append('<option value='+hId+'>'+hId+'</option>');
+                    $.each(aProcess, function(i,proc){
+                        {#alert(proc)#}
+                        process.append('<option value='+proc+'>'+proc+'</option>')
+                    });
+                });
+
             });
 
             $('#btn1').click(function(){
