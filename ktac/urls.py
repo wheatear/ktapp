@@ -5,6 +5,6 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^ktac', views.ktac, name='ktac'),
     url(r'^ktqry', views.ktqry, name='ktqry'),
-    url(r'^ktexe', views.ktexe, name='ktexe'),
+    url(r'^ktproc', views.ktproc, name='ktproc'),
 
 ]

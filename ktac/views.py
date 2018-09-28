@@ -26,6 +26,12 @@ class ktacMain(ktacs.Main):
         self.host = host
         self.process = process
         self.net = net
+        if host == 'all':
+            self.host = 'a'
+        if process == 'all':
+            self.process = None
+        if net == 'all':
+            self.net = None
         self.procType = None
         self.cmd = cmd
 
@@ -47,6 +53,11 @@ def ktqry(request):
     # result = '开通查询结果：'
     return JsonResponse({"result": result})
 
-def ktexe(request):
-    result = '开通执行结果：'
+def ktproc(request):
+    host = request.GET['host']
+    proc = request.GET['process']
+    netele = request.GET['ne']
+    cmd = request.GET['cmd']
+    ktmain = ktacMain(cmd, host, proc, netele)
+    result = ktmain.start()
     return JsonResponse({"result": result})
