@@ -8,6 +8,9 @@ import ktapp.settings
 import os
 import sys
 import ktacs
+import logging
+
+logger = logging.getLogger('sourceDns.webdns.views')
 
 # Create your views here.
 def index(request):
@@ -34,7 +37,7 @@ class ktacMain(ktacs.Main):
             self.net = None
         self.procType = None
         self.cmd = cmd
-
+        logger.debug('ktacMain: %s %s %s %s', cmd,host,process,net)
 
     def checkArgv(self):
         if self.process is None and self.net is None:
@@ -48,8 +51,10 @@ class ktacMain(ktacs.Main):
 
 
 def ktqry(request):
+    logger.debug(request)
     ktmain = ktacMain('q', None, None, None)
     result = ktmain.start()
+    logger.debug(result)
     # result = '开通查询结果：'
     return JsonResponse({"result": result})
 
@@ -58,6 +63,7 @@ def ktproc(request):
     proc = request.GET['process']
     netele = request.GET['ne']
     cmd = request.GET['cmd']
+    logger.debug('host:%s proc:%s net:%s cmd:%s',host,proc,netele,cmd)
     ktmain = ktacMain(cmd, host, proc, netele)
     result = ktmain.start()
     return JsonResponse({"result": result})

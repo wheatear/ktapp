@@ -2,6 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <style>
+        * { padding: 0; margin: 0; }
+        div{
+            background-color: #f0f0f0;
+            font: 14px "微软雅黑";
+        }
+        label{
+            font: 16px "微软雅黑";
+            padding:2px;
+             margin:2px;
+        }
+        select{
+            font: 16px "微软雅黑";
+            padding:2px;
+            margin:2px;
+        }
+        button{
+            font: 16px "微软雅黑";
+            padding:2px;
+            margin:2px;
+
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid #c0c0c0;
+        }
+
+        th,td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #09c;
+            font: bold 16px "微软雅黑";
+            color: #fff;
+        }
+
+        td {
+            font: 14px "微软雅黑";
+        }
+        tbody tr {
+            background-color: #f0f0f0;
+        }
+        tbody tr:hover {
+            cursor: pointer;
+            background-color: #fafafa;
+        }
+    </style>
     <script type="text/javascript" src="/static/jquery.min.js"></script>
     <script type="text/javascript">
         $(function(){
@@ -46,7 +97,7 @@
                 ne = $('#ne  option:selected').val();
                 cmd = $('#cmd  option:selected').val();
                 var dProcData = new Object();
-                alert(host + ' '+process +' '+ ne+' ' +cmd)
+                //alert(host + ' '+process +' '+ ne+' ' +cmd)
                 dProcData.host = host;
                 dProcData.process=process;
                 dProcData.ne=ne;
@@ -74,12 +125,12 @@
                     if(addHead == 0) {
                         addHead = 1;
                         var $trh = $('<tr></tr>');
-                        {#trh = hRes.append('<tr></tr>');#}
+                        trh = hRes.append('<tr></tr>');
                         $trh.append('<th>主机</th>');
                         $trh.append('<th>序号</th>');
-                        for(var i=0; i<procLen; i++) {
-                            $trh.append('<th>状态</th>');
-                        }
+                        //for(var i=0; i<procLen; i++) {
+                        $trh.append('<th>状态</th>');
+                        //}
                         $trh.append('<th>进程名</th>');
                         $trh.append('<th>进程</th>');
                         $trh.append('<th>网元</th>');
@@ -93,10 +144,13 @@
                         {#trh = hRes.append('<tr></tr>');#}
                         $trp.append('<td>'+proc[0]+'</td>');
                         $trp.append('<td>'+proc[4]+'</td>');
-                        for(var i=0; i<procLen; i++) {
+                        var sts = proc[5]
+                        for(var i=1; i<procLen; i++) {
                             j = i + 5;
-                            $trp.append('<td>' + proc[j] + '</td>');
+                            sts = sts  +','+proc[j]
+
                         };
+                        $trp.append('<td>' + sts + '</td>');
                         $trp.append('<td>'+proc[1]+'</td>');
                         $trp.append('<td>'+proc[2]+'</td>');
                         $trp.append('<td>'+proc[3]+'</td>');
@@ -110,29 +164,40 @@
     <title>开通进程管理</title>
 </head>
 <body>
-    <div>
+    <br>
     <label>主机</label><select id="host">
     <option value ="all">全部</option>
     </select>
-    进程<select id="process">
+    <label>进程</label><select id="process">
     <option value ="all">全部</option>
     </select>
-    网元<select id="ne">
+    <label>网元</label><select id="ne">
     <option value ="all">全部</option>
     </select>
-    命令<select id="cmd">
+
+<br />
+
+        <label>命令</label><select id="cmd">
         <option value ="q" selected="selected">查询</option>
         <option value ="s">启动</option>
         <option value ="d">停止</option>
         <option value ="r">重启</option>
     </select>
-<br />
         <button type="button" id="btn1">提交</button>
+
 <br />
+    <br />
         </div>
     <div>
         <table id="result" >
-
+<tr>
+    <th>主机</th>
+    <th>序号</th>
+    <th>状态</th>
+    <th>进程名</th>
+    <th>进程</th>
+    <th>网元</th>
+</tr>
         </table>
     </div>
     <div>

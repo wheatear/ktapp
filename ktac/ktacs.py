@@ -538,7 +538,7 @@ class AcBuilder(object):
         aHosts = None
         main = self.main
         if main.net:
-            aNets = main.obj.split(',')
+            aNets = main.net.split(',')
         if main.process:
             aProcess = main.process.split(',')
             aProcName = self.parseProcess(aProcess)
